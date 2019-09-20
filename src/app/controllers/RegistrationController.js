@@ -2,7 +2,8 @@ import { isBefore } from 'date-fns';
 import Registration from '../models/Registration';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
-import Mail from '../../lib/Mail';
+import Queue from '../../lib/Queue';
+import NewRegistrationMail from '../jobs/NewRegistrationMail';
 
 class RegistrationController {
   async store(req, res) {
@@ -72,17 +73,7 @@ class RegistrationController {
 
     const userEnrolled = await User.findByPk(req.userId);
 
-    // Enviando email
-    await Mail.sendMail({
-      to: `${meetup.user.name} <${meetup.user.email}>`,
-      subject: `Mais um inscrito no evento: ${meetup.title}`,
-      template: 'newRegistration',
-      context: {
-        staff: meetup.user.name,
-        meetup: meetup.title,
-        enrolled: userEnrolled.name,
-      },
-    });
+    await Queue.add(NewRegistrationMail.key, { meetup, userEnrolled });
 
     return res.json(enrolled);
   }
