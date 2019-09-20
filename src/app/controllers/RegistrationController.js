@@ -1,6 +1,8 @@
 import { isBefore } from 'date-fns';
 import Registration from '../models/Registration';
 import Meetup from '../models/Meetup';
+import User from '../models/User';
+import Mail from '../../lib/Mail';
 
 class RegistrationController {
   async store(req, res) {
@@ -10,6 +12,13 @@ class RegistrationController {
       where: {
         id: meetup_id,
       },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
     });
 
     if (!meetup) {
@@ -59,6 +68,13 @@ class RegistrationController {
     const enrolled = await Registration.create({
       user_id: req.userId,
       meetup_id,
+    });
+
+    // Enviando email
+    await Mail.sendMail({
+      to: `${meetup.user.name} <${meetup.user.email}>`,
+      subject: `Mais um inscrito no evento: ${meetup.title}`,
+      text: `Ei ${meetup.user.name}, você tem mais um participante do evento: ${meetup.title}`,
     });
 
     return res.json(enrolled);
