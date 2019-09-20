@@ -45,6 +45,10 @@ class MeetupController {
       return res.status(401).json({ error: 'This not belongs to you' });
     }
 
+    if (isBefore(meetup.date, new Date())) {
+      return res.status(400).json({ error: "You can't update past meetup" });
+    }
+
     await meetup.update(req.body);
     return res.json(meetup);
   }

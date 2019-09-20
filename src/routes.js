@@ -7,6 +7,7 @@ import MeetupController from './app/controllers/MeetupController';
 import authMiddleware from './app/middlewares/auth';
 import dateMiddleware from './app/middlewares/date';
 import multerConfig from './config/multer';
+import RegistrationController from './app/controllers/RegistrationController';
 
 const upload = multer(multerConfig);
 
@@ -27,6 +28,9 @@ routes.get('/meetups', MeetupController.index);
 routes.post('/meetups', dateMiddleware, MeetupController.store);
 routes.put('/meetups/:id', dateMiddleware, MeetupController.update);
 routes.delete('/meetups/:id', MeetupController.delete);
+
+// Registrations
+routes.post('/registration', RegistrationController.store);
 
 // Upload File
 routes.post('/files', upload.single('file'), FileController.store);
