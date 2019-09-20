@@ -70,11 +70,18 @@ class RegistrationController {
       meetup_id,
     });
 
+    const userEnrolled = await User.findByPk(req.userId);
+
     // Enviando email
     await Mail.sendMail({
       to: `${meetup.user.name} <${meetup.user.email}>`,
       subject: `Mais um inscrito no evento: ${meetup.title}`,
-      text: `Ei ${meetup.user.name}, você tem mais um participante do evento: ${meetup.title}`,
+      template: 'newRegistration',
+      context: {
+        staff: meetup.user.name,
+        meetup: meetup.title,
+        enrolled: userEnrolled.name,
+      },
     });
 
     return res.json(enrolled);
