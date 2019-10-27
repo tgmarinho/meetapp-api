@@ -1,5 +1,6 @@
 import { isBefore, parseISO, startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
+import * as Yup from 'yup';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
 import File from '../models/File';
@@ -24,13 +25,11 @@ class MeetupController {
           model: User,
           as: 'user',
           attributes: ['id', 'name', 'email'],
-          include: [
-            {
-              model: File,
-              as: 'avatar',
-              attributes: ['id', 'path', 'url'],
-            },
-          ],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
         },
       ],
       limit: 10,
@@ -41,14 +40,30 @@ class MeetupController {
   }
 
   async store(req, res) {
-    const { date, title, description, localization, banner } = req.body;
+    const schema = Yup.object().shape({
+      banner_id: Yup.number()
+        .transform(value => (!value ? undefined : value))
+        .required('Banner is required'),
+      title: Yup.string()
+        .min(6, 'O título precisa de ter 6 caracteres no mínimo')
+        .required('O título é obrigatório'),
+      description: Yup.string().required('A Descrição é obrigatório'),
+      date: Yup.date().required('A Data é obrigatória'),
+      localization: Yup.string().required('A Localização é obrigatória'),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const { date, title, description, localization, banner_id } = req.body;
 
     const meetup = await Meetup.create({
       user_id: req.userId,
       title,
       description,
       localization,
-      banner,
+      banner_id,
       date,
     });
 
@@ -111,6 +126,32 @@ class MeetupController {
 
     await meetup.destroy();
     return res.json({ success: true });
+  }
+
+  async show(req, res) {
+    const meetup = await Meetup.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: File,
+          as: 'banner',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
+
+    if (!meetup) {
+      return res.status(400).json({ error: 'This not exists' });
+    }
+    if (meetup.user.id !== req.userId) {
+      return res.status(401).json({ error: 'This not belongs to you' });
+    }
+
+    return res.json(meetup);
   }
 }
 export default new MeetupController();

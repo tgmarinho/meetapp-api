@@ -1,6 +1,7 @@
 import './database';
 import express from 'express';
 import * as Sentry from '@sentry/node';
+import 'express-async-errors';
 import Youch from 'youch';
 import cors from 'cors';
 import path from 'path';
