@@ -94,3 +94,12 @@ Also, I'm sending the Insomnia file for call the API, download it [here](https:/
 ## Insomnia's screenshoot 
 ![](https://raw.githubusercontent.com/tgmarinho/meetapp/master/screenshots/insomnia-api.png)
 
+
+## Authors
+
+| ![Thiago Marinho](https://avatars2.githubusercontent.com/u/380327?s=150&v=3)|
+|:---------------------:|
+|  [Thiago Marinho](https://github.com/tgmarinho/)   |
+
+
+Thanks!
