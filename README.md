@@ -1,3 +1,5 @@
+![Thiago Marinho](https://pbs.twimg.com/profile_banners/41742474/1490016588/1500x500)
+
 # Meetapp Backend
 
 In this challenge was built the backend with Node.js.
